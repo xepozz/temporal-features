@@ -24,6 +24,7 @@ use Temporal\DataConverter\ProtoConverter;
 use Temporal\DataConverter\ProtoJsonConverter;
 use Temporal\Interceptor\GrpcClientInterceptor;
 use Temporal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\SimplePipelineProvider;
 
 /**
  * @implements InjectorInterface<WorkflowStubInterface>
@@ -68,7 +69,7 @@ final class ClientFactory
 
         /** @var PipelineProvider|null $pipelineProvider */
         $pipelineProvider = $attribute->pipelineProvider === null
-            ? null
+            ? new SimplePipelineProvider()
             : $this->invoker->invoke($attribute->pipelineProvider);
 
         // Build custom WorkflowClient with gRPC interceptor
