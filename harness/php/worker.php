@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Harness\Feature\SerializationContext\SigningConverter;
 use Harness\Runtime\State;
 use Harness\RuntimeBuilder;
 use Psr\Container\ContainerInterface;
@@ -46,7 +45,6 @@ try {
     $container = new Spiral\Core\Container();
 
     $converters = [
-        new SigningConverter(),
         new NullConverter(),
         new BinaryConverter(),
         new ProtoJsonConverter(),

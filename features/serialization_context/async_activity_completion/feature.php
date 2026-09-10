@@ -11,7 +11,6 @@ use Harness\Attribute\Stub;
 use Harness\Feature\SerializationContext\History;
 use Harness\Feature\SerializationContext\Signature;
 use Harness\Feature\SerializationContext\SignedValue;
-use Harness\Feature\SerializationContext\SigningConverter;
 use Temporal\Activity;
 use Temporal\Activity\ActivityInterface;
 use Temporal\Activity\ActivityMethod;
@@ -29,10 +28,16 @@ use Temporal\DataConverter\NullConverter;
 use Temporal\DataConverter\ProtoConverter;
 use Temporal\DataConverter\ProtoJsonConverter;
 use Temporal\DataConverter\Type;
+use Temporal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Workflow;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
 use Webmozart\Assert\Assert;
+
+require_once __DIR__ . '/../sercontext/sercontext.php';
+
+final class SigningConverter extends \Harness\Feature\SerializationContext\SigningConverter {}
 
 const ACTIVITY_RESULT = 'completed-out-of-band';
 const HEARTBEAT_DATA = 'beat';
@@ -68,10 +73,18 @@ class FeatureWorkflow
 
 class FeatureChecker
 {
+    public function pipelineProvider(): PipelineProvider
+    {
+        return new SimplePipelineProvider();
+    }
+
     #[Check]
     public static function check(
         #[Stub('SerializationContext_AsyncActivityCompletion')]
-        #[Client(payloadConverters: [SigningConverter::class])]
+        #[Client(
+            pipelineProvider: [FeatureChecker::class, 'pipelineProvider'],
+            payloadConverters: [SigningConverter::class],
+        )]
         WorkflowStubInterface $stub,
         WorkflowClientInterface $client,
         State $runtime,

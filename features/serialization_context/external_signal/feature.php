@@ -8,7 +8,6 @@ use Harness\Attribute\Check;
 use Harness\Feature\SerializationContext\History;
 use Harness\Feature\SerializationContext\SignedValue;
 use Harness\Feature\SerializationContext\Signature;
-use Harness\Feature\SerializationContext\SigningConverter;
 use Harness\Runtime\Feature;
 use Harness\Runtime\State;
 use Temporal\Api\History\V1\HistoryEvent;
@@ -27,6 +26,10 @@ use Temporal\Workflow\WorkflowExecution;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
 use Webmozart\Assert\Assert;
+
+require_once __DIR__ . '/../sercontext/sercontext.php';
+
+final class SigningConverter extends \Harness\Feature\SerializationContext\SigningConverter {}
 
 const SIGNAL_DATA = 'signaled';
 const RECEIVER_SUFFIX = '_receiver';

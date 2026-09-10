@@ -11,15 +11,20 @@ use Harness\Attribute\Stub;
 use Harness\Feature\SerializationContext\History;
 use Harness\Feature\SerializationContext\Signature;
 use Harness\Feature\SerializationContext\SignedValue;
-use Harness\Feature\SerializationContext\SigningConverter;
 use Temporal\Api\History\V1\HistoryEvent;
 use Temporal\Client\WorkflowClientInterface;
 use Temporal\Client\WorkflowStubInterface;
+use Temporal\Interceptor\PipelineProvider;
+use Temporal\Interceptor\SimplePipelineProvider;
 use Temporal\Workflow;
 use Temporal\Workflow\WorkflowExecution;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
 use Webmozart\Assert\Assert;
+
+require_once __DIR__ . '/../sercontext/sercontext.php';
+
+final class SigningConverter extends \Harness\Feature\SerializationContext\SigningConverter {}
 
 const FINAL_RESULT = 'done';
 
@@ -42,10 +47,18 @@ class FeatureWorkflow
 
 class FeatureChecker
 {
+    public function pipelineProvider(): PipelineProvider
+    {
+        return new SimplePipelineProvider();
+    }
+
     #[Check]
     public static function check(
         #[Stub('SerializationContext_ContinueAsNew', args: [new SignedValue(1)])]
-        #[Client(payloadConverters: [SigningConverter::class])]
+        #[Client(
+            pipelineProvider: [FeatureChecker::class, 'pipelineProvider'],
+            payloadConverters: [SigningConverter::class],
+        )]
         WorkflowStubInterface $stub,
         WorkflowClientInterface $client,
         State $runtime,
